@@ -31,7 +31,7 @@ def hello_python_app_1_wrapper(executor_name):
     #@parsl_utils.parsl_wrappers.timeout_app(seconds = 60)
     @parsl_utils.parsl_wrappers.log_app
     @python_app(executors=[executor_name])
-    def hello_python_app_1(name = '', sleep_time = 10, fail = False, stdout='std.out', stderr = 'std.err', walltime=10):
+    def hello_python_app_1(name, sleep_time = 10, fail = False, stdout='std.out', stderr = 'std.err', walltime=10):
         import socket
         from time import sleep
 
@@ -108,10 +108,32 @@ if __name__ == '__main__':
     print('Running app', flush = True)
     retry_app_fut = parsl_utils.parsl_wrappers.RetryFuture(
         hello_python_app_1_wrapper,
-        ['myexecutor_1', 'myexecutor_1'],
-        name = '',
-        sleep_time = 70,
-        fail = False
+        [
+            {
+                'executor': 'myexecutor_1',
+                'args': ['DivisionByZero'],
+                'kwargs': {
+                    'sleep_time': 70,
+                    'fail': True
+                }
+            },
+            {
+                'executor': 'myexecutor_1',
+                'args': ['Timeout'],
+                'kwargs': {
+                    'sleep_time': 70,
+                    'fail': False
+                }
+            },
+            {
+                'executor': 'myexecutor_1',
+                'args': ['Success'],
+                'kwargs': {
+                    'sleep_time': 1,
+                    'fail': False
+                }
+            }
+        ]
     )
 
     print(retry_app_fut.result())
