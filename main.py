@@ -52,7 +52,7 @@ RetryHandlerConf = {
             }
         },
         {
-            'executor': 'myexecutor_1',
+            'executor': 'myexecutor_2',
             'args': ['Timeout'],
             'kwargs': {
                 'sleep_time': 70,
@@ -61,7 +61,7 @@ RetryHandlerConf = {
             }
         },
         {
-            'executor': 'myexecutor_1',
+            'executor': 'myexecutor_2',
             'args': ['Success'],
             'kwargs': {
                 'sleep_time': 1,
