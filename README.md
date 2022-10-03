@@ -1,15 +1,5 @@
-# Single Cluster Parsl Hello World
-This workflow is a "hello world" example using Parsl to connect to remote resources with the [SSHChannel](https://parsl.readthedocs.io/en/stable/stubs/parsl.channels.SSHChannel.html). It uses the [parsl_utils](https://github.com/parallelworks/parsl_utils) repository for integration with the PW platform. The purpose of this workflow is to:
-1. Test new resources and resource configurations before launching more complex workflows
-2. Use as template to develop more complex workflows
-
-The workflow executes a python app and a bash app:
-
-**Python App:**
-Returns the host name of the controller node as a Python object and prints it to the standard output (`/pw/jobs/job_number/std.out`). Also returns the input parameter name.
-
-**Bash App:**
-Sends the file `./hello_srun.in` to the controller node, writes the host names of the compute nodes in it and returns it back to the job directory (`/pw/jobs/job_number/hello_srun-1.out`).
+# Failover Demo
+This workflow is a "hello world" failover example using Parsl to connect to remote resources with the [SSHChannel](https://parsl.readthedocs.io/en/stable/stubs/parsl.channels.SSHChannel.html). It uses the [parsl_utils](https://github.com/parallelworks/parsl_utils) repository for integration with the PW platform. 
 
 ## Configuration:
 The workflow configuration is defined in the files `./executors.json` and `./local.conf`:
@@ -74,5 +64,5 @@ LOCAL_CONDA_YAML="Local path to the Conda YAML file defining the environment. Th
 ## Python Environments:
 The same version of Parsl must be installed in the Python environment of the user container and of the executors. The user may set the environments manually or may use Conda YAML definition files. In this example these files are provided in the `./requirements` directory. The parsl_utils repository also supports using singularity files (instead of Conda YAML files) and singularity container (instead of Conda environments) to define the Python environment in the remote resources.
 
-## Github
-TODO
+## Github:
+This workflow clones the [failover_demo](https://github.com/parallelworks/failover_demo) public github repository at runtime. 
