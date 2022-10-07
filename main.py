@@ -52,7 +52,7 @@ RetryHandlerConf = {
             }
         },
         {
-            'executor': 'myexecutor_2',
+            'executor': 'myexecutor_1',
             'args': ['Timeout'],
             'kwargs': {
                 'sleep_time': 70,
@@ -61,12 +61,42 @@ RetryHandlerConf = {
             }
         },
         {
-            'executor': 'myexecutor_2',
+            'executor': 'myexecutor_1',
             'args': ['Success'],
             'kwargs': {
                 'sleep_time': 1,
                 'fail': False,
                 'func_name': 'hello_python_app_1'
+            }
+        }
+    ],
+    "hello_srun_1": [
+        {
+            'executor': 'myexecutor_1',
+            'args': [exec_conf['myexecutor_1']['RUN_DIR']],
+            'kwargs': {
+                'slurm_info': {
+                    'nodes': exec_conf['myexecutor_1']['NODES'],
+                    'partition': exec_conf['myexecutor_1']['PARTITION'],
+                    'ntasks_per_node': exec_conf['myexecutor_1']['NTASKS_PER_NODE'],
+                    'walltime': exec_conf['myexecutor_1']['WALLTIME']
+                },
+                'stdout': os.path.join(exec_conf['myexecutor_1']['RUN_DIR'], 'std.out'),
+                'stderr': os.path.join(exec_conf['myexecutor_1']['RUN_DIR'], 'std.err')
+            }
+        },
+        {
+            'executor': 'myexecutor_2',
+            'args': [exec_conf['myexecutor_2']['RUN_DIR']],
+            'kwargs': {
+                'slurm_info': {
+                    'nodes': exec_conf['myexecutor_2']['NODES'],
+                    'partition': exec_conf['myexecutor_2']['PARTITION'],
+                    'ntasks_per_node': exec_conf['myexecutor_2']['NTASKS_PER_NODE'],
+                    'walltime': exec_conf['myexecutor_2']['WALLTIME']
+                },
+                'stdout': os.path.join(exec_conf['myexecutor_2']['RUN_DIR'], 'std.out'),
+                'stderr': os.path.join(exec_conf['myexecutor_2']['RUN_DIR'], 'std.err')
             }
         }
     ]
@@ -118,6 +148,13 @@ def retry_handler(exception, task_record):
 
 
 # PARSL APPS:
+
+# HELLO_PYTHON_APP:
+# - Runs in the controller node of executor_1
+# - Retries:
+#       1. Fails due to an 1/0 error
+#       2. Times out
+#       3. Runs successfully
 # - FIXME: If walltime parameter is passed we also need to pass func_name due to this issue in Parsl: https://github.com/Parsl/parsl/issues/2449
 @parsl_utils.parsl_wrappers.log_app
 @python_app(executors=[RetryHandlerConf['hello_python_app_1'][0]['executor']])
@@ -125,10 +162,6 @@ def hello_python_app_1(name, sleep_time = 10, fail = False, stdout='std.out', st
     import socket
     from time import sleep
     from datetime import datetime
-
-    f = open('/tmp/time.out', 'a')
-    f.write(str(datetime.now()) + '\n')
-    f.close()
 
     if fail:
         _ = 1/0
@@ -142,6 +175,35 @@ def hello_python_app_1(name, sleep_time = 10, fail = False, stdout='std.out', st
     if not name:
         name = 'python_app_1'
     return 'Hello ' + name + ' from ' + socket.gethostname()
+
+
+# HELLO_SRUN_1:
+# - Runs in the compute partition node of executors 1 and 2
+# - Retries:
+#       1. Fails in compute partition of executor_1. Controller cannot get compute node to start.
+#       2. Succeeds in compute partition of executor_2
+# - FIXME: If walltime parameter is passed we also need to pass func_name due to this issue in Parsl: https://github.com/Parsl/parsl/issues/2449
+@parsl_utils.parsl_wrappers.log_app
+@bash_app(executors=[RetryHandlerConf['hello_python_app_1'][0]['executor']])
+def hello_srun_1(run_dir, slurm_info = {}, stdout='std.out', stderr = 'std.err', walltime=600, func_name = 'hello_srun_1'):
+    if not slurm_info:
+        slurm_info = {
+            'nodes': '1',
+            'partition': 'compute',
+            'ntasks_per_node': '1',
+            'walltime': '01:00:00'
+        }
+
+    return '''
+        cd {run_dir}
+        srun --nodes={nodes}-{nodes} --partition={partition} --ntasks-per-node={ntasks_per_node} --time={walltime} --exclusive hostname
+    '''.format(
+        run_dir = run_dir,
+        nodes = slurm_info['nodes'],
+        partition = slurm_info['partition'],
+        ntasks_per_node = slurm_info['ntasks_per_node'],
+        walltime = slurm_info['walltime']
+    )
 
 
 
@@ -207,8 +269,20 @@ if __name__ == '__main__':
         ]
     )
 
-    print('Loading Parsl Config', flush = True)
+    print('\n\nLOADING PARSL CONFIG', flush = True)
     parsl.load(config)
-    print('Running app', flush = True)
-    retry_app_fut = hello_python_app_1(*RetryHandlerConf['hello_python_app_1'][0]['args'], **RetryHandlerConf['hello_python_app_1'][0]['kwargs'])
+
+    print('\n\nRUNNING PYTHON APP', flush = True)
+    retry_app_fut = hello_python_app_1(
+        *RetryHandlerConf['hello_python_app_1'][0]['args'],
+        **RetryHandlerConf['hello_python_app_1'][0]['kwargs']
+    )
+    print(retry_app_fut.result())
+
+    print('\n\nRUNNING BASH APP', flush = True)
+    retry_app_fut = hello_srun_1(
+        *RetryHandlerConf['hello_srun_1'][0]['args'],
+        **RetryHandlerConf['hello_srun_1'][0]['kwargs']
+    )
+
     print(retry_app_fut.result())

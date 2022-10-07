@@ -1,6 +1,6 @@
 {
     "myexecutor_1": {
-        "POOL": "gcpslurmv2",
+        "POOL": "gcpslurmv2fail",
         "RUN_DIR": "~/parsl-rundir",
         "NODES": 2,
         "PARTITION": "compute",
@@ -15,7 +15,7 @@
         "LOCAL_CONDA_YAML": "./requirements/conda_env_remote.yaml"
     },
         "myexecutor_2": {
-        "POOL": "gcpslurmv2failover",
+        "POOL": "gcpslurmv2",
         "RUN_DIR": "~/parsl-rundir",
         "NODES": 2,
         "PARTITION": "compute",
