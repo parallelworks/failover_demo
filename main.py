@@ -112,10 +112,12 @@ def retry_handler(exception, task_record):
         if 'func_name' in task_record['kwargs']:
             func_name = task_record['kwargs']['func_name']
     ############################ end of issue 2449 fix #############################
-
-    print('\nRetrying function {func_name} with fail history:', flush = True)
+    print('\nRetrying function {}'.format(func_name), flush = True)
+    print('Fail history:', flush = True)
     print(task_record['fail_history'], flush = True)
-
+    print('Resource session messages:', flush = True)
+    rmsgs = parsl_utils.resource_info.get_resource_messages(exec_conf[task_record['executor']]['POOL'])
+    [ print(msg, flush = True) for msg in rmsgs ]
 
     if func_name in RetryHandlerConf:
         print('Retry configuration found for function {func_name}'.format(func_name = func_name), flush = True)
