@@ -14,13 +14,24 @@ def resilient_app(name, sleep_time = 10, fail = False, walltime = 20, retry_para
     import socket
     from time import sleep
 
+    import logging
+    formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s')
+    
+    def get_logger(log_file, name, level = logging.INFO):
+        handler = logging.FileHandler(log_file)
+        handler.setFormatter(formatter)
+        logger = logging.getLogger(name)
+        logger.setLevel(level)
+        logger.addHandler(handler)
+        return logging.getLogger(name)
+
+    logger = get_logger('resilient_app.log', 'resilient_app')
+
     if fail:
         _ = 1/0
 
     for i in range(sleep_time):
-        f = open('/tmp/time.out', 'a')
-        f.write(str(i) + '\n')
-        f.close()
+        logger.info('Waiting ' + str(i))
         sleep(1)
 
     if not name:
