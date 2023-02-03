@@ -19,16 +19,16 @@ if __name__ == '__main__':
 
     print('\n\nRUNNING PYTHON APP', flush = True)
     retry_app_fut = resilient_app(
-        name = 'DivisionByZero', 
+        'DivisionByZero', 
         fail = True,
-        retry_params = [
+        retry_parameters = [
         {
             'executor': 'myexecutor_1',
             'args': ['Timeout'],
             'kwargs': {
                 'sleep_time': 70,
                 'fail': False,
-                'func_name': 'retry_app_fut'
+                'func_name': 'resilient_app'
             }
         },
         {
@@ -37,7 +37,7 @@ if __name__ == '__main__':
             'kwargs': {
                 'sleep_time': 1,
                 'fail': False,
-                'func_name': 'retry_app_fut'
+                'func_name': 'resilient_app'
             }
         }]
     )
