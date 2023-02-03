@@ -20,7 +20,7 @@ if __name__ == '__main__':
     print('\n\nRUNNING PYTHON APP', flush = True)
     retry_app_fut = resilient_app(
         name = 'DivisionByZero', 
-        fail = True
+        fail = True,
         retry_params = [
         {
             'executor': 'myexecutor_1',
