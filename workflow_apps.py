@@ -28,7 +28,7 @@ if __name__ == '__main__':
             'kwargs': {
                 'sleep_time': 70,
                 'fail': False,
-                'func_name': 'retry_app_fut'
+                'func_name': 'resilient_app'
             }
         },
         {
@@ -37,7 +37,7 @@ if __name__ == '__main__':
             'kwargs': {
                 'sleep_time': 1,
                 'fail': False,
-                'func_name': 'retry_app_fut'
+                'func_name': 'resilient_app'
             }
         }]
     )
