@@ -26,7 +26,7 @@ if __name__ == '__main__':
             'executor': 'myexecutor_1',
             'args': ['Timeout'],
             'kwargs': {
-                'sleep_time': 70,
+                'sleep_time': 600,
                 'fail': False,
                 'func_name': 'resilient_app'
             }
