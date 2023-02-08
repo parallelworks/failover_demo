@@ -4,7 +4,7 @@ import parsl_utils
 # PARSL APPS:
 @parsl_utils.parsl_wrappers.log_app
 @python_app(executors=['myexecutor_1'])
-def resilient_app(name, sleep_time = 10, fail = False, walltime = 20, retry_parameters = [], func_name = 'resilient_app'):
+def resilient_app(name, sleep_time = 10, fail = False, walltime = 20, retry_parameters = None, func_name = 'resilient_app'):
     """
     App to model the following scenarios:
     1. Failure: if Fail=True), 
